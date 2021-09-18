@@ -3,8 +3,8 @@
 #define __PLAY_SCENE__
 
 #include "Scene.h"
-#include "Plane.h"
-#include "Player.h"
+#include "ExampleSprite.h"
+#include "SuperSprite1.h"
 #include "Button.h"
 #include "Label.h"
 
@@ -22,13 +22,22 @@ public:
 	virtual void start() override;
 private:
 	// IMGUI Function
-	void GUI_Function() const;
+	void GUI_Function();
 	std::string m_guiTitle;
 	
 	glm::vec2 m_mousePosition;
 
-	Plane* m_pPlaneSprite;
-	Player* m_pPlayer;
+	SuperSprite1* m_pSprite1;
+	SuperSprite1* m_pSprite2;
+	float a = 4 + 5;
+	float b = 44 + 20;
+	float c = 200;
+	float d = 200;
+	float t;
+	float y;
+	float x;
+
+
 	bool m_playerFacingRight;
 
 	// UI Items

@@ -24,7 +24,22 @@ void PlayScene::draw()
 
 void PlayScene::update()
 {
+	float dt = Game::Instance().getDeltaTime();
+	t += dt;
 	updateDisplayList();
+
+	float x1;
+	float y1;
+	y1 = d + sin(t * a) * b;
+	x1 = c + cos(t * a) * b;
+	m_pSprite1->getTransform()->position = glm::vec2(x1, y1);
+
+	float X;
+	float Y;
+
+	Y = y + (cos(t*a)) * a * b * dt;
+	X = x + (-sin(t*a)) * a * b * dt;
+	m_pSprite2->getTransform()->position = glm::vec2(X, Y);
 }
 
 void PlayScene::clean()
@@ -35,64 +50,6 @@ void PlayScene::clean()
 void PlayScene::handleEvents()
 {
 	EventManager::Instance().update();
-
-	// handle player movement with GameController
-	if (SDL_NumJoysticks() > 0)
-	{
-		if (EventManager::Instance().getGameController(0) != nullptr)
-		{
-			const auto deadZone = 10000;
-			if (EventManager::Instance().getGameController(0)->LEFT_STICK_X > deadZone)
-			{
-				m_pPlayer->setAnimationState(PLAYER_RUN_RIGHT);
-				m_playerFacingRight = true;
-			}
-			else if (EventManager::Instance().getGameController(0)->LEFT_STICK_X < -deadZone)
-			{
-				m_pPlayer->setAnimationState(PLAYER_RUN_LEFT);
-				m_playerFacingRight = false;
-			}
-			else
-			{
-				if (m_playerFacingRight)
-				{
-					m_pPlayer->setAnimationState(PLAYER_IDLE_RIGHT);
-				}
-				else
-				{
-					m_pPlayer->setAnimationState(PLAYER_IDLE_LEFT);
-				}
-			}
-		}
-	}
-
-
-	// handle player movement if no Game Controllers found
-	if (SDL_NumJoysticks() < 1)
-	{
-		if (EventManager::Instance().isKeyDown(SDL_SCANCODE_A))
-		{
-			m_pPlayer->setAnimationState(PLAYER_RUN_LEFT);
-			m_playerFacingRight = false;
-		}
-		else if (EventManager::Instance().isKeyDown(SDL_SCANCODE_D))
-		{
-			m_pPlayer->setAnimationState(PLAYER_RUN_RIGHT);
-			m_playerFacingRight = true;
-		}
-		else
-		{
-			if (m_playerFacingRight)
-			{
-				m_pPlayer->setAnimationState(PLAYER_IDLE_RIGHT);
-			}
-			else
-			{
-				m_pPlayer->setAnimationState(PLAYER_IDLE_LEFT);
-			}
-		}
-	}
-	
 
 	if (EventManager::Instance().isKeyDown(SDL_SCANCODE_ESCAPE))
 	{
@@ -114,15 +71,16 @@ void PlayScene::start()
 {
 	// Set GUI Title
 	m_guiTitle = "Play Scene";
-	
-	// Plane Sprite
-	m_pPlaneSprite = new Plane();
-	addChild(m_pPlaneSprite);
 
-	// Player Sprite
-	m_pPlayer = new Player();
-	addChild(m_pPlayer);
-	m_playerFacingRight = true;
+	//Sprite 1
+	m_pSprite1 = new SuperSprite1();
+	addChild(m_pSprite1);
+	m_pSprite1->getTransform()->position = glm::vec2(400, 200);
+
+	//Sprite 2
+	m_pSprite2 = new SuperSprite1();
+	addChild(m_pSprite2);
+	m_pSprite2->getTransform()->position = glm::vec2(c + 200, d);
 
 	// Back Button
 	m_pBackButton = new Button("../Assets/textures/backButton.png", "backButton", BACK_BUTTON);
@@ -174,7 +132,7 @@ void PlayScene::start()
 	ImGuiWindowFrame::Instance().setGUIFunction(std::bind(&PlayScene::GUI_Function, this));
 }
 
-void PlayScene::GUI_Function() const
+void PlayScene::GUI_Function()
 {
 	// Always open with a NewFrame
 	ImGui::NewFrame();
@@ -184,21 +142,14 @@ void PlayScene::GUI_Function() const
 	
 	ImGui::Begin("Your Window Title Goes Here", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove);
 
-	if(ImGui::Button("My Button"))
+	ImGui::SliderFloat("t", &t, 0.0f, 100.0f, "%.3f");
+	ImGui::SliderFloat("a", &a, -100.0f, 100.0f, "%.3f");
+	ImGui::SliderFloat("b", &b, -10.0f, 10.0f, "%.3f");
+	ImGui::SliderFloat("c", &c, 0.0f, 500.0f, "%.3f");
+	ImGui::SliderFloat("d", &d, 0.0f, 500.0f, "%.3f");
 	{
-		std::cout << "My Button Pressed" << std::endl;
+
 	}
 
-	ImGui::Separator();
-
-	static float float3[3] = { 0.0f, 1.0f, 1.5f };
-	if(ImGui::SliderFloat3("My Slider", float3, 0.0f, 2.0f))
-	{
-		std::cout << float3[0] << std::endl;
-		std::cout << float3[1] << std::endl;
-		std::cout << float3[2] << std::endl;
-		std::cout << "---------------------------\n";
-	}
-	
 	ImGui::End();
 }
